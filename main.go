@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/mr-emerald-wolf/go-api/controllers"
 	"github.com/mr-emerald-wolf/go-api/initializers"
 	"github.com/mr-emerald-wolf/go-api/routes"
 )
