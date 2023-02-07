@@ -1,0 +1,95 @@
+package old
+
+import (
+	"net/http"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/joho/godotenv"
+	"gorm.io/gorm"
+)
+
+type Product struct {
+	Name        string `json:"name"`
+	Price       int    `json:"price"`
+	Seller      string `json:"seller"`
+	Description string `json:"desc"`
+}
+
+type Repository struct {
+	DB *gorm.DB
+}
+
+func (r *Repository) SetupRoutes(app *fiber.App) {
+	api := app.Group("/api")
+	api.Post("/create", r.createProduct)
+	api.Delete("/delete/:id", r.deleteProduct)
+	api.Get("/find/:id", r.findProduct)
+	api.Get("/all", r.getAllProducts)
+
+}
+
+func (r *Repository) createProduct(context *fiber.Ctx) error {
+
+	product := Product{}
+	err := context.BodyParser(&product)
+
+	if err != nil {
+		context.Status(http.StatusUnprocessableEntity).JSON(
+			&fiber.Map{"message": "request failed"})
+		return err
+	}
+	err = r.DB.Create(&product).Error
+	if err != nil {
+		context.Status(http.StatusBadRequest).JSON(
+			&fiber.Map{"message": "could not create product"})
+		return err
+	}
+
+	context.Status(http.StatusOK).JSON(
+		&fiber.Map{"message": "product created"})
+
+	return nil
+
+}
+
+func (r *Repository) getAllProducts(context *fiber.Ctx) error {
+	productModels := &[]models.Products{}
+
+	err := r.DB.Find(productModels).Error
+
+	if err != nil {
+		context.Status(http.StatusBadRequest).JSON(
+			&fiber.Map{"message": "could not find products"})
+		return err
+	}
+	
+	context.Status(http.StatusOK).JSON(
+		&fiber.Map{
+			"message": "products found",
+			"data":    productModels,
+		})
+
+	return nil
+}
+func main() {
+	err := godotenv.Load(".env")
+
+	if err != nil {
+		panic(err)
+	}
+
+	db, err := storage.NewConnection(config)
+
+	if err != nil {
+		panic(err)
+	}
+
+	r = Repository{
+		DB: db,
+	}
+
+	app := fiber.New()
+
+	r.SetupRoutes(app)
+	app.Listen(":4000")
+}
