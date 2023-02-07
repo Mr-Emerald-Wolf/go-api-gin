@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/mr-emerald-wolf/go-api/controllers"
 	"github.com/mr-emerald-wolf/go-api/initializers"
+	"github.com/mr-emerald-wolf/go-api/routes"
 )
 
 func init() {
@@ -13,10 +14,7 @@ func init() {
 
 func main() {
 	r := gin.Default()
-	r.POST("/create", controllers.CreateProduct)
-	r.GET("/findAll", controllers.GetAllProducts)
-	r.GET("/find/:id", controllers.FindProduct)
-
+	router := r.Group("/")
+	routes.AddRoutes(router)
 	r.Run()
 }
-
