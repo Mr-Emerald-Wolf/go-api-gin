@@ -1,0 +1,29 @@
+version: '3'
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    ports:
+      - '6500:5432'
+    volumes:
+      - progresDB:/data/postgres
+    env_file:
+      - .env
+
+  go-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: go-app
+    ports:
+      - '8080:8080'
+    depends_on:
+      - postgres
+    volumes:
+      - .:/app
+    environment:
+      - APP_ENV=production
+
+volumes:
+  progresDB:
+
